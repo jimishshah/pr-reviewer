@@ -13,11 +13,13 @@ An AI-powered pull request review tool that uses Google's Gemini AI to analyze c
   - Unit tests
   - Integration tests
   - E2E tests
+- Support for both Bitbucket and GitHub pull requests
 
 ## Prerequisites
 
 - Node.js (latest LTS version recommended)
 - A Google Gemini API key
+- Either a Bitbucket or GitHub access token
 
 ## Installation
 
@@ -34,10 +36,17 @@ cd pr-reviewer
 npm install
 ```
 
-3. Create a `.env` file in the root directory and add your Gemini API key:
+3. Create a `.env` file in the root directory with your API keys:
 
 ```
-GEMINI_API_KEY=your_api_key_here
+# Required for all PRs
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Required for Bitbucket PRs
+BITBUCKET_ACCESS_TOKEN=your_bitbucket_access_token_here
+
+# Required for GitHub PRs
+GITHUB_ACCESS_TOKEN=your_github_access_token_here
 ```
 
 ## Usage
@@ -50,10 +59,18 @@ To review a pull request, run:
 npm run review <pr-url>
 ```
 
-For example:
+The tool supports both Bitbucket and GitHub PR URLs:
+
+Bitbucket example:
 
 ```bash
-npm run review https://github.com/username/repo/pull/123
+npm run review https://bitbucket.org/workspace/repo/pull-requests/123
+```
+
+GitHub example:
+
+```bash
+npm run review https://github.com/owner/repo/pull/123
 ```
 
 ### Programmatic Usage
@@ -61,7 +78,7 @@ npm run review https://github.com/username/repo/pull/123
 You can also use the PR reviewer programmatically in your code:
 
 ```typescript
-import { reviewPullRequest } from "@beautybay-web/pr-reviewer";
+import { reviewPullRequest } from "pr-reviewer";
 
 const result = await reviewPullRequest({
   title: "PR Title",
@@ -105,3 +122,27 @@ The review results will be returned in the following format:
   }
 }
 ```
+
+## License
+
+MIT License
+
+Copyright (c) 2025
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -1,6 +1,55 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { PRContext } from "../../types";
 import { ReviewService } from "../reviewService";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// Mock the Gemini API
+vi.mock("@google/generative-ai", () => ({
+  GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
+    getGenerativeModel: vi.fn().mockReturnValue({
+      generateContent: vi.fn().mockImplementation(({ contents }) => {
+        const prompt = contents[0].parts[0].text;
+        if (prompt.includes("Review the following pull request")) {
+          return {
+            response: {
+              text: vi.fn().mockReturnValue(`
+                \`\`\`json
+                {
+                  "strengths": ["Good code structure"],
+                  "improvements": ["Add error handling"],
+                  "security": ["No security issues found"],
+                  "performance": ["Good performance"],
+                  "testCoverage": {
+                    "current": "Basic coverage",
+                    "missing": ["Edge cases"]
+                  }
+                }
+                \`\`\`
+              `),
+            },
+          };
+        } else if (
+          prompt.includes("Generate tests for the following code changes")
+        ) {
+          return {
+            response: {
+              text: vi.fn().mockReturnValue(`
+                \`\`\`json
+                {
+                  "unitTests": ["Test button click"],
+                  "integrationTests": ["Test button in form"],
+                  "e2eTests": ["Test button in user flow"]
+                }
+                \`\`\`
+              `),
+            },
+          };
+        }
+        throw new Error("Unexpected prompt");
+      }),
+    }),
+  })),
+}));
 
 describe("ReviewService", () => {
   const mockApiKey = "test-api-key";
@@ -21,6 +70,7 @@ describe("ReviewService", () => {
   it("should initialize with API key", () => {
     const service = new ReviewService(mockApiKey);
     expect(service).toBeInstanceOf(ReviewService);
+    expect(GoogleGenerativeAI).toHaveBeenCalledWith(mockApiKey);
   });
 
   it("should generate review and tests", async () => {

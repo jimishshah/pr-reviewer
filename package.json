@@ -1,5 +1,5 @@
 {
-  "name": "@beautybay-web/pr-reviewer",
+  "name": "pr-reviewer",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -10,15 +10,16 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@beautybay/data-contracts": "0.1.109",
     "@google/generative-ai": "^0.2.1",
     "dotenv": "^16.4.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "20.12.7",
+    "@types/node": "^20.12.7",
     "tsx": "^4.7.1",
     "vitest": "^1.3.1",
-    "typescript": "5.3.2"
+    "typescript": "5.3.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
   }
 }
