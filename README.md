@@ -64,7 +64,11 @@ The tool supports both Bitbucket and GitHub PR URLs:
 Bitbucket example:
 
 ```bash
+# Review PR without adding comments
 npm run review https://bitbucket.org/workspace/repo/pull-requests/123
+
+# Review PR and add comments directly to Bitbucket
+npm run review https://bitbucket.org/workspace/repo/pull-requests/123 -- -c
 ```
 
 GitHub example:
@@ -72,6 +76,10 @@ GitHub example:
 ```bash
 npm run review https://github.com/owner/repo/pull/123
 ```
+
+### Command Line Options
+
+- `-c` or `--comment`: Add review comments directly to the Bitbucket PR (Bitbucket only)
 
 ### Programmatic Usage
 

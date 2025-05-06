@@ -17,16 +17,40 @@ export class ReviewService {
 
   private cleanResponse(text: string): string {
     // First, try to extract JSON from markdown code blocks
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
+    const jsonMatch = text.match(/```(?:json)?\n([\s\S]*?)\n```/);
     if (jsonMatch) {
       return jsonMatch[1].trim();
     }
 
     // If no code block found, try to clean the text
-    return text
-      .replace(/```json\n?/g, "")
+    let cleaned = text
+      .replace(/```(?:json)?\n?/g, "")
       .replace(/```\n?/g, "")
       .trim();
+
+    // Try to fix common JSON formatting issues
+    cleaned = cleaned
+      // Fix missing commas between array elements
+      .replace(/"\s*\n\s*"/g, '",\n"')
+      // Fix missing commas between object properties
+      .replace(/"\s*\n\s*"/g, '",\n"')
+      // Remove any trailing commas in arrays or objects
+      .replace(/,(\s*[}\]])/g, "$1")
+      // Fix escaped characters
+      .replace(/\\([^"\\\/bfnrtu])/g, "$1") // Remove invalid escapes
+      .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16))
+      ) // Convert unicode escapes
+      .replace(/\\n/g, " ") // Replace newlines with spaces
+      .replace(/\\r/g, " ") // Replace carriage returns with spaces
+      .replace(/\\t/g, " ") // Replace tabs with spaces
+      // Fix quotes
+      .replace(/(?<!\\)"/g, '\\"')
+      .replace(/\\"/g, '"')
+      // Remove any remaining invalid escape sequences
+      .replace(/\\([^"\\\/bfnrtu])/g, "$1");
+
+    return cleaned;
   }
 
   private async generateReview(context: PRContext): Promise<CodeReview> {
@@ -52,12 +76,17 @@ export class ReviewService {
     console.log("Cleaned response:", cleanedText); // Debug log
 
     try {
-      return CodeReviewSchema.parse(JSON.parse(cleanedText));
+      const parsed = JSON.parse(cleanedText);
+      return CodeReviewSchema.parse(parsed);
     } catch (error: unknown) {
       console.error("Failed to parse review response:", error);
       console.error("Raw response:", text);
+      console.error("Cleaned response:", cleanedText);
+
       if (error instanceof Error) {
-        throw new Error(`Failed to parse review response: ${error.message}`);
+        throw new Error(
+          `Failed to parse review response: ${error.message}\nRaw response: ${text}`
+        );
       }
       throw new Error("Failed to parse review response: Unknown error");
     }
@@ -86,12 +115,17 @@ export class ReviewService {
     console.log("Cleaned test response:", cleanedText); // Debug log
 
     try {
-      return TestGenerationSchema.parse(JSON.parse(cleanedText));
+      const parsed = JSON.parse(cleanedText);
+      return TestGenerationSchema.parse(parsed);
     } catch (error: unknown) {
       console.error("Failed to parse test response:", error);
-      console.error("Raw test response:", text);
+      console.error("Raw response:", text);
+      console.error("Cleaned response:", cleanedText);
+
       if (error instanceof Error) {
-        throw new Error(`Failed to parse test response: ${error.message}`);
+        throw new Error(
+          `Failed to parse test response: ${error.message}\nRaw response: ${text}`
+        );
       }
       throw new Error("Failed to parse test response: Unknown error");
     }
@@ -111,7 +145,7 @@ export class ReviewService {
         Type: ${change.type}
         Content:
         ${change.content}
-      `,
+      `
         )
         .join("\n")}
       
@@ -144,7 +178,7 @@ export class ReviewService {
         File: ${change.path}
         Content:
         ${change.content}
-      `,
+      `
         )
         .join("\n")}
       
