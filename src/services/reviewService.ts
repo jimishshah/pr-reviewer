@@ -72,16 +72,13 @@ export class ReviewService {
       throw new Error("Failed to generate review");
     }
 
-    const cleanedText = this.cleanResponse(text);
-    console.log("Cleaned response:", cleanedText); // Debug log
-
     try {
-      const parsed = JSON.parse(cleanedText);
-      return CodeReviewSchema.parse(parsed);
+      const cleanText = this.cleanResponse(text);
+      const json = JSON.parse(cleanText);
+      return CodeReviewSchema.parse(json);
     } catch (error: unknown) {
       console.error("Failed to parse review response:", error);
       console.error("Raw response:", text);
-      console.error("Cleaned response:", cleanedText);
 
       if (error instanceof Error) {
         throw new Error(
@@ -111,16 +108,13 @@ export class ReviewService {
       throw new Error("Failed to generate tests");
     }
 
-    const cleanedText = this.cleanResponse(text);
-    console.log("Cleaned test response:", cleanedText); // Debug log
-
     try {
-      const parsed = JSON.parse(cleanedText);
-      return TestGenerationSchema.parse(parsed);
+      const cleanText = this.cleanResponse(text);
+      const json = JSON.parse(cleanText);
+      return TestGenerationSchema.parse(json);
     } catch (error: unknown) {
       console.error("Failed to parse test response:", error);
       console.error("Raw response:", text);
-      console.error("Cleaned response:", cleanedText);
 
       if (error instanceof Error) {
         throw new Error(
