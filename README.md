@@ -109,7 +109,7 @@ const result = await reviewPullRequest({
 
 ## Output Format
 
-The review results will be returned in the following format:
+The review result will be returned in the following format:
 
 ```json
 {
