@@ -160,6 +160,7 @@ export class ReviewService {
           "missing": string[]
         }
       }
+      Recheck the response JSON is a valid JSON object and fix it before returning.
     `;
   }
 
