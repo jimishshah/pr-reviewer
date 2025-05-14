@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const CodeReviewSchema = z.object({
+  summary: z.string(),
   strengths: z.array(z.string()),
   improvements: z.array(z.string()),
   security: z.array(z.string()),

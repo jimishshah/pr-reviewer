@@ -114,6 +114,7 @@ The review result will be returned in the following format:
 ```json
 {
   "review": {
+    "summary": string,
     "strengths": string[],
     "improvements": string[],
     "security": string[],

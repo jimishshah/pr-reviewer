@@ -144,13 +144,15 @@ export class ReviewService {
         .join("\n")}
       
       Please provide a structured review focusing on:
-      1. TypeScript best practices
-      2. React patterns and performance
-      3. Architecture and code organization
-      4. Security considerations
+      1. Summary of the changes, think from user perspective what the changes mean for the user and impact of the changes
+      2. TypeScript best practices
+      3. React patterns and performance
+      4. Architecture and code organization
+      5. Security considerations
       
       Format the response as a JSON object matching this schema:
       {
+        "summary": string,
         "strengths": string[],
         "improvements": string[],
         "security": string[],

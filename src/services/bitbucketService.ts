@@ -16,6 +16,7 @@ export class BitbucketService {
   private formatReviewAsComment(review: PRReviewResult): string {
     const sections = [
       "## Code Review Summary",
+      review.review.summary,
       "\n### Strengths",
       ...review.review.strengths.map((s) => `- ${s}`),
       "\n### Improvements",
