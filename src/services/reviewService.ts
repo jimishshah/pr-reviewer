@@ -10,6 +10,15 @@ import {
 
 export class ReviewService {
   private genAI: GoogleGenerativeAI;
+  private models: string[] = [
+    "gemini-2.5-pro",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.0-flash",
+    "gemini-1.5-pro",
+    "gemini-1.5-flash",
+    "gemini-pro"
+  ];
 
   constructor(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
@@ -53,76 +62,103 @@ export class ReviewService {
     return cleaned;
   }
 
+  private async tryWithModels<T>(
+    operation: (modelName: string) => Promise<T>,
+    operationName: string
+  ): Promise<T> {
+    const errors: Error[] = [];
+    
+    for (const modelName of this.models) {
+      try {
+        console.log(`Trying ${operationName} with model: ${modelName}`);
+        return await operation(modelName);
+      } catch (error) {
+        console.warn(`${operationName} failed with ${modelName}:`, error instanceof Error ? error.message : error);
+        errors.push(error instanceof Error ? error : new Error(String(error)));
+      }
+    }
+    
+    throw new Error(
+      `${operationName} failed with all models. Errors: ${errors.map(e => e.message).join('; ')}`
+    );
+  }
+
   private async generateReview(context: PRContext): Promise<CodeReview> {
     const prompt = this.buildReviewPrompt(context);
-    const model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }],
-        },
-      ],
-    });
-    const response = await result.response;
-    const text = response.text();
+    return this.tryWithModels(async (modelName: string) => {
+      const model = this.genAI.getGenerativeModel({ model: modelName });
 
-    if (!text) {
-      throw new Error("Failed to generate review");
-    }
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+      });
+      const response = await result.response;
+      const text = response.text();
 
-    try {
-      const cleanText = this.cleanResponse(text);
-      const json = JSON.parse(cleanText);
-      return CodeReviewSchema.parse(json);
-    } catch (error: unknown) {
-      console.error("Failed to parse review response:", error);
-      console.error("Raw response:", text);
-
-      if (error instanceof Error) {
-        throw new Error(
-          `Failed to parse review response: ${error.message}\nRaw response: ${text}`
-        );
+      if (!text) {
+        throw new Error("Failed to generate review");
       }
-      throw new Error("Failed to parse review response: Unknown error");
-    }
+
+      try {
+        const cleanText = this.cleanResponse(text);
+        const json = JSON.parse(cleanText);
+        return CodeReviewSchema.parse(json);
+      } catch (error: unknown) {
+        console.error("Failed to parse review response:", error);
+        console.error("Raw response:", text);
+
+        if (error instanceof Error) {
+          throw new Error(
+            `Failed to parse review response: ${error.message}\nRaw response: ${text}`
+          );
+        }
+        throw new Error("Failed to parse review response: Unknown error");
+      }
+    }, "Review generation");
   }
 
   private async generateTests(context: PRContext): Promise<TestGeneration> {
     const prompt = this.buildTestPrompt(context);
-    const model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }],
-        },
-      ],
-    });
-    const response = await result.response;
-    const text = response.text();
+    return this.tryWithModels(async (modelName: string) => {
+      const model = this.genAI.getGenerativeModel({ model: modelName });
 
-    if (!text) {
-      throw new Error("Failed to generate tests");
-    }
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+      });
+      const response = await result.response;
+      const text = response.text();
 
-    try {
-      const cleanText = this.cleanResponse(text);
-      const json = JSON.parse(cleanText);
-      return TestGenerationSchema.parse(json);
-    } catch (error: unknown) {
-      console.error("Failed to parse test response:", error);
-      console.error("Raw response:", text);
-
-      if (error instanceof Error) {
-        throw new Error(
-          `Failed to parse test response: ${error.message}\nRaw response: ${text}`
-        );
+      if (!text) {
+        throw new Error("Failed to generate tests");
       }
-      throw new Error("Failed to parse test response: Unknown error");
-    }
+
+      try {
+        const cleanText = this.cleanResponse(text);
+        const json = JSON.parse(cleanText);
+        return TestGenerationSchema.parse(json);
+      } catch (error: unknown) {
+        console.error("Failed to parse test response:", error);
+        console.error("Raw response:", text);
+
+        if (error instanceof Error) {
+          throw new Error(
+            `Failed to parse test response: ${error.message}\nRaw response: ${text}`
+          );
+        }
+        throw new Error("Failed to parse test response: Unknown error");
+      }
+    }, "Test generation");
   }
 
   private buildReviewPrompt(context: PRContext): string {
