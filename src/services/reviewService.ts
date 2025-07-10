@@ -145,8 +145,8 @@ export class ReviewService {
       
       Please provide a structured review focusing on:
       1. Summary of the changes, think from user perspective what the changes mean for the user and impact of the changes
-      2. TypeScript best practices
-      3. React patterns and performance
+      2. Code quality and best practices
+      3. Design patterns and performance
       4. Architecture and code organization
       5. Security considerations
       

@@ -31,13 +31,13 @@ export class BitbucketService {
       ...review.review.testCoverage.missing.map((t) => `- ${t}`),
       "\n### Suggested Tests",
       "\n#### Unit Tests",
-      ...review.tests.unitTests.map((t) => `\`\`\`typescript\n${t}\n\`\`\``),
+      ...review.tests.unitTests.map((t) => `\`\`\`\n${t}\n\`\`\``),
       "\n#### Integration Tests",
       ...review.tests.integrationTests.map(
-        (t) => `\`\`\`typescript\n${t}\n\`\`\``
+        (t) => `\`\`\`\n${t}\n\`\`\``
       ),
       "\n#### E2E Tests",
-      ...review.tests.e2eTests.map((t) => `\`\`\`typescript\n${t}\n\`\`\``),
+      ...review.tests.e2eTests.map((t) => `\`\`\`\n${t}\n\`\`\``),
     ];
 
     return sections.join("\n");

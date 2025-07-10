@@ -15,6 +15,7 @@ vi.mock("@google/generative-ai", () => ({
               text: vi.fn().mockReturnValue(`
                 \`\`\`json
                 {
+                  "summary": "This PR adds a new calculator function",
                   "strengths": ["Good code structure"],
                   "improvements": ["Add error handling"],
                   "security": ["No security issues found"],
@@ -36,9 +37,9 @@ vi.mock("@google/generative-ai", () => ({
               text: vi.fn().mockReturnValue(`
                 \`\`\`json
                 {
-                  "unitTests": ["Test button click"],
-                  "integrationTests": ["Test button in form"],
-                  "e2eTests": ["Test button in user flow"]
+                  "unitTests": ["Test function behavior"],
+                  "integrationTests": ["Test module integration"],
+                  "e2eTests": ["Test complete user workflow"]
                 }
                 \`\`\`
               `),
@@ -58,8 +59,8 @@ describe("ReviewService", () => {
     description: "Test description",
     changes: [
       {
-        path: "src/components/Button.tsx",
-        content: "export const Button = () => <button>Click me</button>;",
+        path: "src/utils/calculator.js",
+        content: "function add(a, b) { return a + b; }",
         type: "added",
       },
     ],
